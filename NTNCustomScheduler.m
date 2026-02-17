@@ -186,7 +186,7 @@ classdef NTNCustomScheduler < nrScheduler
             if nargin < 2 || isempty(timeResource)
                 obj.GlobalSlotCounter = obj.GlobalSlotCounter + 1;
             else
-                thisTime = obj.getTimeResourceKey(timeResource);
+                thisTime = double(timeResource(1));
                 if ~isequaln(thisTime, obj.LastTimeResource)
                     obj.GlobalSlotCounter = obj.GlobalSlotCounter + 1;
                     obj.LastTimeResource = thisTime;
@@ -205,57 +205,6 @@ classdef NTNCustomScheduler < nrScheduler
             framePlan.EnablexDL = obj.EnablexDL;
             framePlan.xDLReuseSlots = xdlSlots;
             obj.LastPlan = framePlan;
-        end
-
-
-        function key = getTimeResourceKey(~, timeResource)
-            %getTimeResourceKey Convert scheduler timeResource input to a stable key.
-            % Handles numeric, struct, and nested scheduler representations.
-            if isnumeric(timeResource) || islogical(timeResource)
-                key = double(timeResource(1));
-                return;
-            end
-
-            if isstruct(timeResource)
-                if isscalar(timeResource)
-                    if isfield(timeResource, 'SlotNumber')
-                        key = double(timeResource.SlotNumber);
-                        return;
-                    end
-                    if isfield(timeResource, 'NSlot')
-                        key = double(timeResource.NSlot);
-                        return;
-                    end
-                    if isfield(timeResource, 'nSlot')
-                        key = double(timeResource.nSlot);
-                        return;
-                    end
-                    if isfield(timeResource, 'Timestamp')
-                        key = double(timeResource.Timestamp);
-                        return;
-                    end
-                    if isfield(timeResource, 'NFrame') && isfield(timeResource, 'NSlot')
-                        key = double(timeResource.NFrame)*1e5 + double(timeResource.NSlot);
-                        return;
-                    end
-                end
-                % Fallback: hash-like deterministic scalar from flattened struct contents
-                try
-                    asJson = jsonencode(timeResource);
-                    key = double(sum(uint8(asJson)));
-                catch
-                    key = double(numel(fieldnames(timeResource)));
-                end
-                return;
-            end
-
-            if iscell(timeResource)
-                key = double(numel(timeResource));
-                return;
-            end
-
-            % Final fallback to avoid hard failure on unsupported types
-            key = double(numel(timeResource));
         end
 
         function gpPerUE = getGPSlotsPerUE(obj)
