@@ -186,7 +186,7 @@ classdef NTNCustomScheduler < nrScheduler
             if nargin < 2 || isempty(timeResource)
                 obj.GlobalSlotCounter = obj.GlobalSlotCounter + 1;
             else
-                thisTime = double(timeResource(1));
+                thisTime = ntn.getTimeResourceKey(timeResource);
                 if ~isequaln(thisTime, obj.LastTimeResource)
                     obj.GlobalSlotCounter = obj.GlobalSlotCounter + 1;
                     obj.LastTimeResource = thisTime;
@@ -206,6 +206,7 @@ classdef NTNCustomScheduler < nrScheduler
             framePlan.xDLReuseSlots = xdlSlots;
             obj.LastPlan = framePlan;
         end
+
 
         function gpPerUE = getGPSlotsPerUE(obj)
             gpPerUE = 0;
